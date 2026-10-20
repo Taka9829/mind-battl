@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>マインドバトル</title>
+  <style>
+    body {
+      background: #171923;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px 16px;
+    }
+
+    .game {
+      max-width: 500px;
+      margin: auto;
+      background: #252938;
+      padding: 24px;
+      border-radius: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      margin: 8px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #character {
+      margin-top: 20px;
+    }
+
+    #status {
+      color: #a8f0c6;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <h1>🎮 マインドバトル</h1>
+    <p>ガチャでキャラを引いて、心理戦で勝利しよう！</p>
+
+    <h2>キャラクターガチャ</h2>
+    <button id="drawButton" onclick="drawCharacter()">
+      ガチャを引く！
+    </button>
+
+    <div id="character">キャラクターを読み込み中...</div>
+
+<hr>
+<h3>⚔️ マインドバトル</h3>
+<button id="battleButton" onclick="startBattle()">バトル開始！</button>
+<div id="battleResult">バトルの準備ができたら開始しよう！</div>
+
+    <hr>
+    <h3>データベース接続</h3>
+    <p id="status">接続準備中...</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://ifylrbstelihwwjvpblo.supabase.co";
+
+    // 自分の公開用KEYを設定してね
+    const SUPABASE_KEY = "sb_publishable_zQGb0S3g0FSBtoS5AQ0JWw_cd0rl-kN";
+
+    let supabaseClient = null;
+    let characters = [];
+
+    async function connectSupabase() {
+      const status = document.getElementById("status");
+      const characterArea = document.getElementById("character");
+      const drawButton = document.getElementById("drawButton");
+
+      if (!SUPABASE_KEY || SUPABASE_KEY.trim() === "") {
+        status.textContent = "公開用KEYが空欄だよ。";
+        characterArea.textContent = "まだガチャを引けません。";
+        return;
+      }
+
+      if (!window.supabase) {
+        status.textContent =
+          "Supabaseの読み込みに失敗したよ。ネット接続を確認してね。";
+        return;
+      }
+
+      drawButton.disabled = true;
+
+      try {
+        supabaseClient = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+        const { data, error } = await supabaseClient
+          .from("characters")
+          .select("id, name, rarity, hp, attack, ability");
+
+        if (error) {
+          status.textContent = "読み込みエラー：" + error.message;
+          characterArea.textContent =
+            "キャラクターを読み込めませんでした。";
+          return;
+        }
+
+        characters = data || [];
+
+        if (characters.length === 0) {
+          status.textContent = "接続成功！でもキャラクターが0体だよ。";
+          characterArea.textContent =
+            "charactersテーブルにデータを追加してね。";
+          return;
+        }
+
+        status.textContent =
+          `接続成功！ ${characters.length}体のキャラクターを読み込んだよ！ 🎉`;
+
+        characterArea.textContent =
+          "準備完了！ガチャを引いてみよう！";
+      } catch (error) {
+        status.textContent = "接続エラー：" + error.message;
+      } finally {
+        drawButton.disabled = characters.length === 0;
+      }
+    }
+
+    function drawCharacter() {
+      const area = document.getElementById("character");
+
+      if (characters.length === 0) {
+        area.textContent = "キャラクターをまだ読み込めていないよ。";
+        return;
+      }
+
+      const index = Math.floor(Math.random() * characters.length);
+      const character = characters[index];
+
+      area.replaceChildren();
+
+      const title = document.createElement("h2");
+      title.textContent = character.name ?? "名前なし";
+      area.appendChild(title);
+
+      const details = [
+        "レア度：" + (character.rarity ?? "不明"),
+        "HP：" + (character.hp ?? "不明"),
+        "攻撃力：" + (character.attack ?? "不明"),
+        "能力：" + (character.ability ?? "なし")
+      ];
+
+      for (const detail of details) {
+        const p = document.createElement("p");
+        p.textContent = detail;
+        area.appendChild(p);
+      }
+    }
+
+    connectSupabase();
+  </script>
+</body>
+</html>
