@@ -299,7 +299,13 @@ async function checkRoomMembers() {
     .select("player_id")
     .eq("room_id", room.id);
 
-  if (error || !members) return;
+  if (error) {
+  document.getElementById("roomStatus").textContent =
+    "参加人数の読み込みエラー：" + error.message;
+  return;
+}
+
+if (!members) return;
 
   if (members.length >= 2) {
     document.getElementById("roomStatus").textContent =
