@@ -56,6 +56,12 @@
 <hr>
 <h3>⚔️ マインドバトル</h3>
 <button id="battleButton" onclick="startBattle()">バトル開始！</button>
+<div>
+  <input id="roomCodeInput" placeholder="友達の部屋コード">
+  <button onclick="createRoom()">部屋を作る</button>
+  <button onclick="joinRoom()">部屋に参加</button>
+</div>
+<p id="roomStatus">オンライン対戦：未参加</p>
 <div id="battleResult">バトルの準備ができたら開始しよう！</div>
 
     <hr>
@@ -163,6 +169,115 @@
     }
 
     connectSupabase();
+   // オンライン対戦 
+   // プレイヤーIDを作る
+function makePlayerId() {
+  let id = localStorage.getItem("mindBattlePlayerId");
+
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("mindBattlePlayerId", id);
+  }
+
+  return id;
+}
+
+// 部屋を作る
+async function createRoom() {
+  if (!supabaseClient) {
+    alert("データベースに接続できていません");
+    return;
+  }
+
+  const roomCode = Math.random()
+    .toString(36)
+    .slice(2, 8)
+    .toUpperCase();
+
+  const { data, error } = await supabaseClient
+    .from("rooms")
+    .insert({
+      room_code: roomCode,
+      host_id: makePlayerId()
+    })
+    .select()
+    .single();
+
+  if (error) {
+    document.getElementById("roomStatus").textContent =
+      "部屋作成エラー：" + error.message;
+    return;
+  }
+
+  document.getElementById("roomCodeInput").value =
+    data.room_code;
+
+  await joinRoomById(data.id);
+
+  document.getElementById("roomStatus").textContent =
+    "部屋を作ったよ！友達にこのコードを教えてね：" +
+    data.room_code;
+}
+
+// 友達の部屋に参加する
+async function joinRoom() {
+  if (!supabaseClient) {
+    alert("データベースに接続できていません");
+    return;
+  }
+
+  const code = document.getElementById("roomCodeInput")
+    .value.trim().toUpperCase();
+
+  if (!code) {
+    alert("友達の部屋コードを入力してね");
+    return;
+  }
+
+  const { data, error } = await supabaseClient
+    .from("rooms")
+    .select("id, room_code")
+    .eq("room_code", code)
+    .maybeSingle();
+
+  if (error || !data) {
+    document.getElementById("roomStatus").textContent =
+      "部屋が見つからないよ。コードを確認してね。";
+    return;
+  }
+
+  await joinRoomById(data.id);
+}
+
+// 部屋にプレイヤーを登録する
+async function joinRoomById(roomId) {
+  const { error } = await supabaseClient
+    .from("room_members")
+    .upsert(
+      {
+        room_id: roomId,
+        player_id: makePlayerId()
+      },
+      {
+        onConflict: "room_id,player_id"
+      }
+    );
+
+  if (error) {
+    document.getElementById("roomStatus").textContent =
+      "参加エラー：" + error.message;
+    return;
+  }
+
+  document.getElementById("roomStatus").textContent =
+    "部屋に参加できたよ！";
+}
+
+// バトル開始ボタン
+function startBattle() {
+  document.getElementById("battleResult").textContent =
+    "部屋の準備ができたよ！次は対戦機能を作ろう。";
+}
   </script>
 </body>
 </html>
