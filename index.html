@@ -217,7 +217,8 @@ async function createRoom() {
   document.getElementById("roomStatus").textContent =
     "部屋を作ったよ！友達にこのコードを教えてね：" +
     data.room_code;
-}
+}if (roomCheckTimer) clearInterval(roomCheckTimer);
+roomCheckTimer = setInterval(checkRoomMembers, 3000);
 
 // 友達の部屋に参加する
 async function joinRoom() {
