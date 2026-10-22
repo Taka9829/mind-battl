@@ -271,8 +271,43 @@ async function joinRoomById(roomId) {
 
   document.getElementById("roomStatus").textContent =
     "部屋に参加できたよ！";
-}
+}if (roomCheckTimer) clearInterval(roomCheckTimer);
+roomCheckTimer = setInterval(checkRoomMembers, 3000);
+let roomCheckTimer = null;
 
+async function checkRoomMembers() {
+  if (!supabaseClient) return;
+
+  const code = document.getElementById("roomCodeInput").value
+    .trim().toUpperCase();
+
+  if (!code) return;
+
+  const { data: room, error: roomError } = await supabaseClient
+    .from("rooms")
+    .select("id")
+    .eq("room_code", code)
+    .maybeSingle();
+
+  if (roomError || !room) return;
+
+  const { data: members, error } = await supabaseClient
+    .from("room_members")
+    .select("player_id")
+    .eq("room_id", room.id);
+
+  if (error || !members) return;
+
+  if (members.length >= 2) {
+    document.getElementById("roomStatus").textContent =
+      "対戦相手が参加したよ！🎉";
+
+    if (roomCheckTimer) {
+      clearInterval(roomCheckTimer);
+      roomCheckTimer = null;
+    }
+  }
+}
 // バトル開始ボタン
 function startBattle() {
   document.getElementById("battleResult").textContent =
