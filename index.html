@@ -47,9 +47,9 @@
     <p>ガチャでキャラを引いて、心理戦で勝利しよう！</p>
 
     <h2>キャラクターガチャ</h2>
-    <button id="drawButton" onclick="drawCharacter()">
-      ガチャを引く！
-    </button>
+    <button id="drawButton" onclick="drawCharacter()" disabled>
+  ガチャを引く！
+</button>
 
     <div id="character">キャラクターを読み込み中...</div>
 
@@ -136,7 +136,8 @@
         drawButton.disabled = characters.length === 0;
       }
     }
-
+let battleCharacter = null;
+let battleStarted = false;
     function drawCharacter() {
       const area = document.getElementById("character");
 
@@ -145,8 +146,20 @@
         return;
       }
 
-      const index = Math.floor(Math.random() * characters.length);
-      const character = characters[index];
+      if (!battleStarted) {
+  area.textContent = "先にバトル開始を押してね。";
+  return;
+}
+
+if (battleCharacter) {
+  area.textContent = "ガチャは1回だけだよ。";
+  return;
+}
+
+const index = Math.floor(Math.random() * characters.length);
+const character = characters[index];
+battleCharacter = character;
+document.getElementById("drawButton").disabled = true;
 
       area.replaceChildren();
 
@@ -319,8 +332,26 @@ if (!members) return;
 }
 // バトル開始ボタン
 function startBattle() {
+  if (!supabaseClient) {
+    alert("データベースに接続できていません");
+    return;
+  }
+
+  const roomCode = document.getElementById("roomCodeInput")
+    .value.trim().toUpperCase();
+
+  if (!roomCode) {
+    alert("先に部屋を作るか、友達の部屋に参加してね");
+    return;
+  }
+
+  battleStarted = true;
+  battleCharacter = null;
+
   document.getElementById("battleResult").textContent =
-    "部屋の準備ができたよ！次は対戦機能を作ろう。";
+    "バトル開始！ガチャを1回引いてね。";
+
+  document.getElementById("drawButton").disabled = false;
 }
   </script>
 </body>
