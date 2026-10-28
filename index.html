@@ -56,7 +56,9 @@
   <div id="character">キャラクターを読み込み中...</div>
   <button id="enterBattleButton" onclick="enterBattle()" style="display:none;">
   対戦開始！
-  <div id="battleScreen" style="display:none;">
+</button>
+
+<div id="battleScreen" style="display:none;">
   <h3>⚔️ バトル</h3>
   <p>コマンドを選んでね！</p>
   <button onclick="chooseCommand('attack')">⚔️ 攻撃</button>
@@ -64,7 +66,6 @@
   <button onclick="chooseCommand('mind')">🧠 心理戦</button>
   <p id="commandResult"></p>
 </div>
-</button>
 </div>
 
 <hr>
@@ -374,6 +375,17 @@ function startBattle() {
 function enterBattle() {
   document.getElementById("gachaScreen").style.display = "none";
   document.getElementById("battleScreen").style.display = "block";
+}
+function chooseCommand(command) {
+  const result = document.getElementById("commandResult");
+
+  if (command === "attack") {
+    result.textContent = "⚔️ 攻撃を選んだよ！";
+  } else if (command === "defend") {
+    result.textContent = "🛡️ 防御を選んだよ！";
+  } else if (command === "mind") {
+    result.textContent = "🧠 心理戦を選んだよ！相手の行動を読もう！";
+  }
 }
   </script>
 </body>
