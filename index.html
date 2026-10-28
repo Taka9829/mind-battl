@@ -51,9 +51,12 @@
   ガチャを引く！
 </button>
 
-    <div id="character">キャラクターを読み込み中...</div>
+    <div id="gachaScreen">
+  <div id="character">キャラクターを読み込み中...</div>
+</div>
 
 <hr>
+<div id="roomScreen"></div>
 <h3>⚔️ マインドバトル</h3>
 <button id="battleButton" onclick="startBattle()">バトル開始！</button>
 <div>
@@ -63,7 +66,7 @@
 </div>
 <p id="roomStatus">オンライン対戦：未参加</p>
 <div id="battleResult">バトルの準備ができたら開始しよう！</div>
-
+</div>
     <hr>
     <h3>データベース接続</h3>
     <p id="status">接続準備中...</p>
@@ -347,6 +350,9 @@ function startBattle() {
 
   battleStarted = true;
   battleCharacter = null;
+
+  document.getElementById("roomScreen").style.display = "none";
+  document.getElementById("gachaScreen").style.display = "block";
 
   document.getElementById("battleResult").textContent =
     "バトル開始！ガチャを1回引いてね。";
