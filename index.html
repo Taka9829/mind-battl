@@ -49,14 +49,16 @@
     <h2>キャラクターガチャ</h2>
     
 
-   <div id="gachaScreen" style="display:none;">
+   
+<div id="gachaScreen" style="display:none;">
   <button id="drawButton" onclick="drawCharacter()" disabled>
     ガチャを引く！
   </button>
   <div id="character">キャラクターを読み込み中...</div>
   <button id="enterBattleButton" onclick="enterBattle()" style="display:none;">
-  対戦開始！
-</button>
+    対戦開始！
+  </button>
+</div>
 
 <div id="battleScreen" style="display:none;">
   <h3>⚔️ バトル</h3>
@@ -66,8 +68,8 @@
   <button onclick="chooseCommand('mind')">🧠 心理戦</button>
   <p id="commandResult"></p>
 </div>
-</div>
 <hr>
+
 <div id="roomScreen">
 <h3>⚔️ マインドバトル</h3>
 <button id="battleButton" onclick="startBattle()">バトル開始！</button>
