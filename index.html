@@ -54,6 +54,17 @@
     ガチャを引く！
   </button>
   <div id="character">キャラクターを読み込み中...</div>
+  <button id="enterBattleButton" onclick="enterBattle()" style="display:none;">
+  対戦開始！
+  <div id="battleScreen" style="display:none;">
+  <h3>⚔️ バトル</h3>
+  <p>コマンドを選んでね！</p>
+  <button onclick="chooseCommand('attack')">⚔️ 攻撃</button>
+  <button onclick="chooseCommand('defend')">🛡️ 防御</button>
+  <button onclick="chooseCommand('mind')">🧠 心理戦</button>
+  <p id="commandResult"></p>
+</div>
+</button>
 </div>
 
 <hr>
@@ -164,7 +175,7 @@ const index = Math.floor(Math.random() * characters.length);
 const character = characters[index];
 battleCharacter = character;
 document.getElementById("drawButton").disabled = true;
-
+document.getElementById("enterBattleButton").style.display = "block";
       area.replaceChildren();
 
       const title = document.createElement("h2");
@@ -359,6 +370,10 @@ function startBattle() {
     "バトル開始！ガチャを1回引いてね。";
 
   document.getElementById("drawButton").disabled = false;
+}
+function enterBattle() {
+  document.getElementById("gachaScreen").style.display = "none";
+  document.getElementById("battleScreen").style.display = "block";
 }
   </script>
 </body>
